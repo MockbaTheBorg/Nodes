@@ -34,7 +34,7 @@ class mbImageFlip:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "image": ("IMAGE",),
@@ -76,7 +76,7 @@ class mbImageRot:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "image": ("IMAGE",),
@@ -120,7 +120,7 @@ class mbImageSubtract:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "a": ("IMAGE",),
@@ -144,7 +144,7 @@ class mbImageDimensions:
         pass
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "image": ("IMAGE",),
@@ -166,8 +166,11 @@ class mbImageDimensions:
 
 # Loads an image from a file.
 class mbImageLoad:
+    def __init__(self):
+        pass
+
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         input_dir = folder_paths.get_input_directory()
         exclude_folders = ["clipspace"]
         file_list = []
@@ -177,6 +180,8 @@ class mbImageLoad:
             dirs[:] = [d for d in dirs if d not in exclude_folders]
             
             for file in files:
+                if not file.endswith(".png") and not file.endswith(".jpg"):
+                    continue
                 file_list.append(os.path.relpath(os.path.join(root, file), start=input_dir))
 
         return {"required":
@@ -204,7 +209,7 @@ class mbImageLoad:
         return (image, mask.unsqueeze(0))
 
     @classmethod
-    def IS_CHANGED(s, image):
+    def IS_CHANGED(self, image):
         image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
         with open(image_path, 'rb') as f:
@@ -212,7 +217,7 @@ class mbImageLoad:
         return m.digest().hex()
 
     @classmethod
-    def VALIDATE_INPUTS(s, image):
+    def VALIDATE_INPUTS(self, image):
         if not folder_paths.exists_annotated_filepath(image):
             return "Invalid image file: {}".format(image)
         return True
@@ -224,7 +229,7 @@ class mbSelector:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "a": (AlwaysEqualProxy("*"), {"default": 0}),
@@ -234,7 +239,7 @@ class mbSelector:
         }
 
     RETURN_TYPES = (AlwaysEqualProxy("*"),)
-    RETURN_NAMES = ("out",)
+    RETURN_NAMES = ("?",)
     FUNCTION = "select"
     CATEGORY = "Mockba"
     DESCRIPTION = "Selects one of two objects based on the value of a slider."
@@ -252,7 +257,7 @@ class mbExecute:
         pass
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "a": (AlwaysEqualProxy("*"), {"default": 0}),
@@ -280,14 +285,13 @@ class mbImageToFile:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "image": ("IMAGE",),
                 "base_name": ("STRING", {"default": "image"}),
                 "id": ("INT", {"default": 0, "min": 0, "step": 1}),
                 "use_id": (["yes", "no"], {"default": "no"}),
-                "log": (["yes", "no"], {"default": "no"}),
             },
         }
 
@@ -297,7 +301,7 @@ class mbImageToFile:
     CATEGORY = "Mockba"
     DESCRIPTION = "Saves an image to a file."
 
-    def mbImageSave(self, image, base_name, id, use_id, log):
+    def mbImageSave(self, image, base_name, id, use_id):
         prefix = "ComfyUI\\input\\"
         if not os.path.exists(prefix):
             os.makedirs(prefix)
@@ -308,8 +312,6 @@ class mbImageToFile:
         image_np = 255.0 * image.cpu().numpy().squeeze()
         image_pil = Image.fromarray(image_np.astype(np.uint8))
         image_pil.save(prefix + filename)
-        if log == "yes":
-            print("Saved file: " + prefix + filename)
         return (image, id,)
 
 
@@ -319,13 +321,12 @@ class mbFileToImage:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "base_name": ("STRING", {"default": "image"}),
                 "id": ("INT", {"default": 0, "min": 0, "step": 1}),
                 "use_id": (["yes", "no"], {"default": "no"}),
-                "log": (["yes", "no"], {"default": "no"}),
             }
         }
 
@@ -335,21 +336,17 @@ class mbFileToImage:
     CATEGORY = "Mockba"
     DESCRIPTION = "Loads an image from a file."
 
-    def mbImageLoad(self, base_name, id, use_id, log):
+    def mbImageLoad(self, base_name, id, use_id):
         prefix = "ComfyUI\\input\\"
         if use_id == "yes":
             filename = base_name + "_" + str(id) + ".png"
         else:
             filename = base_name + ".png"
         if not os.path.exists(prefix + filename):
-            if log == "yes":
-                print("File not found: " + prefix + filename)
             return (torch.zeros([1, 512, 512, 3]),)
         image_pil = Image.open(prefix + filename)
         image_np = np.array(image_pil).astype(np.float32) / 255.0
         image = torch.from_numpy(image_np).unsqueeze(0)
-        if log == "yes":
-            print("Loaded file: " + prefix + filename)
         return (image, id,)
 
 
@@ -359,14 +356,13 @@ class mbTextToFile:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "text": ("STRING", {"default": "text"}),
                 "base_name": ("STRING", {"default": "text"}),
                 "id": ("INT", {"default": 0, "min": 0, "step": 1}),
                 "use_id": (["yes", "no"], {"default": "no"}),
-                "log": (["yes", "no"], {"default": "no"}),
             },
         }
 
@@ -376,7 +372,7 @@ class mbTextToFile:
     CATEGORY = "Mockba"
     DESCRIPTION = "Saves text to a file."
 
-    def mbTextSave(self, text, base_name, id, use_id, log):
+    def mbTextSave(self, text, base_name, id, use_id):
         prefix = "ComfyUI\\input\\"
         if not os.path.exists(prefix):
             os.makedirs(prefix)
@@ -386,8 +382,6 @@ class mbTextToFile:
             filename = base_name + ".txt"
         with open(prefix + filename, "w") as f:
             f.write(text)
-        if log == "yes":
-            print("Saved file: " + prefix + filename)
         return (text, id,)
 
 
@@ -397,14 +391,13 @@ class mbFileToText:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "default": ("STRING", {"default": ""}),
                 "base_name": ("STRING", {"default": "text"}),
                 "id": ("INT", {"default": 0, "min": 0, "step": 1}),
                 "use_id": (["yes", "no"], {"default": "no"}),
-                "log": (["yes", "no"], {"default": "no"}),
             }
         }
 
@@ -414,7 +407,7 @@ class mbFileToText:
     CATEGORY = "Mockba"
     DESCRIPTION = "Loads text from a file."
 
-    def mbTextLoad(self, default, base_name, id, use_id, log):
+    def mbTextLoad(self, default, base_name, id, use_id):
         if default != "":
             return (default, id)
         prefix = "ComfyUI\\input\\"
@@ -423,13 +416,9 @@ class mbFileToText:
         else:
             filename = base_name + ".txt"
         if not os.path.exists(prefix + filename):
-            if log == "yes":
-                print("File not found: " + prefix + filename)
             return ("",)
         with open(prefix + filename, "r") as f:
             text = f.read()
-        if log == "yes":
-            print("Loaded file: " + prefix + filename)
         return (text, id,)
 
 
@@ -439,7 +428,7 @@ class mbTextOrFile:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "input": ("STRING", {"default": "", "multiline": True}),
@@ -478,9 +467,12 @@ class mbDebug:
         pass
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(self):
         return {
-            "required": {"input": (AlwaysEqualProxy("*"), {})},
+            "required": {
+                "input": (AlwaysEqualProxy("*"), {}),
+                "element": ("STRING", {"default": "element name"}),
+            }
         }
 
     RETURN_TYPES = ()
@@ -490,24 +482,25 @@ class mbDebug:
     DESCRIPTION = "Shows debug information about the input object."
     OUTPUT_NODE = True
 
-    def debug(self, input):
+    def debug(self, input, element):
     
-        print("Debug:")
-        print(input)
+        print(f"Debug {element}:")
         if isinstance(input, object) and not isinstance(input, (str, int, float, bool, list, dict, tuple)):
             print("Objects directory listing:")
             pprint(dir(input), indent=4)
+        else:
+            print(input)
 		
         return ()
 
 
 # Creates an empty latent image using the cpu or gpu.
 class mbEmptyLatentImage:
-    def __init__(self, device="cpu"):
-        self.device = device
+    def __init__(self):
+        pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         devices = ["cpu", "cuda"]
         default_device = devices[0]
 
@@ -543,14 +536,12 @@ class mbEmptyLatentImage:
     CATEGORY = "Mockba"
     DESCRIPTION = "Creates an empty latent image using the cpu or gpu."
 
-    def generate(self, size, width, height, batch_size=1, device="cpu", garbage_collect=False):
-        self.device = device
+    def generate(self, size, width, height, batch_size, device, garbage_collect):
         if garbage_collect:
             gc.collect()
             if device.startswith("cuda"):
                 torch.cuda.ipc_collect()
                 torch.cuda.empty_cache()
-
 
         if size == "------":
             size = "custom"
@@ -615,7 +606,6 @@ def my_common_ksampler(
     last_step=None,
     force_full_denoise=False,
 ):
-    device = comfy.model_management.get_torch_device()
     latent_image = latent["samples"]
 
     if disable_noise:
@@ -633,20 +623,8 @@ def my_common_ksampler(
     if "noise_mask" in latent:
         noise_mask = latent["noise_mask"]
 
-    preview_format = "JPEG"
-    if preview_format not in ["JPEG", "PNG"]:
-        preview_format = "JPEG"
-
-    previewer = latent_preview.get_previewer(device, model.model.latent_format)
-
-    pbar = comfy.utils.ProgressBar(steps)
-
-    def callback(step, x0, x, total_steps):
-        preview_bytes = None
-        if previewer:
-            preview_bytes = previewer.decode_latent_to_preview_image(preview_format, x0)
-        pbar.update_absolute(step + 1, total_steps, preview_bytes)
-
+    callback = latent_preview.prepare_callback(model, steps)
+    disable_pbar = not comfy.utils.PROGRESS_BAR_ENABLED
     samples = comfy.sample.sample(
         model,
         noise,
@@ -664,18 +642,18 @@ def my_common_ksampler(
         force_full_denoise=force_full_denoise,
         noise_mask=noise_mask,
         callback=callback,
+        disable_pbar=disable_pbar,
         seed=seed,
     )
     out = latent.copy()
     out["samples"] = samples
-
     return (out,)
 
 
 # Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
 class mbKSampler:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "model": ("MODEL",),
@@ -730,7 +708,7 @@ class mbKSampler:
 # Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
 class mbKSamplerAdvanced:
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "model": ("MODEL",),
@@ -804,7 +782,7 @@ class mbHashGenerator:
         pass
 
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(self):
         return {
             "required": {
                 "seed": ("STRING", {"default": "000000000000"}),
