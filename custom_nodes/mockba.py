@@ -19,9 +19,7 @@ import latent_preview
 MAX_RESOLUTION = 8192
 
 
-"""
-A proxy class that always returns True when compared to any other object.
-"""
+# A proxy class that always returns True when compared to any other object.
 class AlwaysEqualProxy(str):
     def __eq__(self, _):
         return True
@@ -30,9 +28,7 @@ class AlwaysEqualProxy(str):
         return False
 
 
-"""
-Flips an image horizontally or vertically.
-"""
+# Flips an image horizontally or vertically.
 class mbImageFlip:
     def __init__(self):
         pass
@@ -56,7 +52,6 @@ class mbImageFlip:
         if flip == "none":
             return (image,)
 
-        # Convert the input image tensor to a NumPy array
         image_np = 255.0 * image.cpu().numpy().squeeze()
 
         if flip == "horizontal":
@@ -69,16 +64,13 @@ class mbImageFlip:
             print(f"Invalid flip. Must be either 'none', 'horizontal', 'vertical' or 'both'. No changes applied.")
             return (image,)
 
-        # Convert the flipped NumPy array back to a tensor
         flipped_image_np = flipped_image_np.astype(np.float32) / 255.0
         flipped_image_tensor = torch.from_numpy(flipped_image_np).unsqueeze(0)
 
         return (flipped_image_tensor,)
 
 
-"""
-Rotates an image by 90, 180 or 270 degrees ccw.
-"""
+# Rotates an image by 90, 180 or 270 degrees ccw.
 class mbImageRot:
     def __init__(self):
         pass
@@ -122,9 +114,7 @@ class mbImageRot:
         return (rotated_image_tensor,)
 
 
-"""
-Subtracts two images. Used to visually measure the difference between two images.
-"""
+# Subtracts two images. Used to visually measure the difference between two images.
 class mbImageSubtract:
     def __init__(self):
         pass
@@ -148,9 +138,7 @@ class mbImageSubtract:
         return (abs(a - b),)
 
 
-"""
-Returns the width and height of an image.
-"""
+# Returns the width and height of an image.
 class mbImageDimensions:
     def __init__(self):
         pass
@@ -163,8 +151,8 @@ class mbImageDimensions:
             },
         }
 
-    RETURN_TYPES = ("INT", "INT")
-    RETURN_NAMES = ("width", "height")
+    RETURN_TYPES = ("INT", "INT",)
+    RETURN_NAMES = ("width", "height",)
     FUNCTION = "get_size"
     CATEGORY = "Mockba"
     DESCRIPTION = "Returns the width and height of an image."
@@ -176,9 +164,7 @@ class mbImageDimensions:
         return (image_width, image_height,)
 
 
-"""
-Loads an image from a file.
-"""
+# Loads an image from a file.
 class mbImageLoad:
     @classmethod
     def INPUT_TYPES(s):
@@ -197,8 +183,8 @@ class mbImageLoad:
                     {"image": (sorted(file_list), {"image_upload": True})},
                 }
 
-    RETURN_TYPES = ("IMAGE", "MASK")
-    RETURN_NAMES = ("image", "mask")
+    RETURN_TYPES = ("IMAGE", "MASK",)
+    RETURN_NAMES = ("image", "mask",)
     FUNCTION = "load_image"
     CATEGORY = "Mockba"
     DESCRIPTION = "Loads image with subfolders."
@@ -232,9 +218,7 @@ class mbImageLoad:
         return True
 
 
-"""
-Selects one of two objects based on the value of a slider.
-"""	
+# Selects one of two objects based on the value of a slider.
 class mbSelector:
     def __init__(self):
         pass
@@ -262,9 +246,7 @@ class mbSelector:
             return (b,)
 
 
-"""
-Execute python code on inputs and return the result.
-"""
+# Execute python code on inputs and return the result.
 class mbExecute:
     def __init__(self):
         pass
@@ -292,9 +274,7 @@ class mbExecute:
         return (eval(code),)
 
 
-"""
-Saves an image to a file.
-"""
+# Saves an image to a file.
 class mbImageToFile:
     def __init__(self):
         pass
@@ -311,8 +291,8 @@ class mbImageToFile:
             },
         }
 
-    RETURN_TYPES = ("IMAGE", "INT")
-    RETURN_NAMES = ("image", "id")
+    RETURN_TYPES = ("IMAGE", "INT",)
+    RETURN_NAMES = ("image", "id",)
     FUNCTION = "mbImageSave"
     CATEGORY = "Mockba"
     DESCRIPTION = "Saves an image to a file."
@@ -333,9 +313,7 @@ class mbImageToFile:
         return (image, id,)
 
 
-"""
-Loads an image from a file.
-"""
+# Loads an image from a file.
 class mbFileToImage:
     def __init__(self):
         pass
@@ -351,8 +329,8 @@ class mbFileToImage:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "INT")
-    RETURN_NAMES = ("image", "id")
+    RETURN_TYPES = ("IMAGE", "INT",)
+    RETURN_NAMES = ("image", "id",)
     FUNCTION = "mbImageLoad"
     CATEGORY = "Mockba"
     DESCRIPTION = "Loads an image from a file."
@@ -375,9 +353,7 @@ class mbFileToImage:
         return (image, id,)
 
 
-"""
-Saves text to a file.
-"""
+# Saves text to a file.
 class mbTextToFile:
     def __init__(self):
         pass
@@ -394,8 +370,8 @@ class mbTextToFile:
             },
         }
 
-    RETURN_TYPES = ("STRING", "INT")
-    RETURN_NAMES = ("text", "id")
+    RETURN_TYPES = ("STRING", "INT",)
+    RETURN_NAMES = ("text", "id",)
     FUNCTION = "mbTextSave"
     CATEGORY = "Mockba"
     DESCRIPTION = "Saves text to a file."
@@ -415,9 +391,7 @@ class mbTextToFile:
         return (text, id,)
 
 
-"""
-Loads text from a file.
-"""
+# Loads text from a file.
 class mbFileToText:
     def __init__(self):
         pass
@@ -434,8 +408,8 @@ class mbFileToText:
             }
         }
 
-    RETURN_TYPES = ("STRING", "INT")
-    RETURN_NAMES = ("text", "id")
+    RETURN_TYPES = ("STRING", "INT",)
+    RETURN_NAMES = ("text", "id",)
     FUNCTION = "mbTextLoad"
     CATEGORY = "Mockba"
     DESCRIPTION = "Loads text from a file."
@@ -459,9 +433,46 @@ class mbFileToText:
         return (text, id,)
 
 
-"""
-Shows debug information about the input object.
-"""
+# loads text from a file or uses the entered value.
+class mbTextOrFile:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "input": ("STRING", {"default": "", "multiline": True}),
+                "base_name": ("STRING", {"default": "filename"}),
+                "action": (["append", "prepend", "replace"], {"default": "append"}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("text",)
+    FUNCTION = "mbTextOrFile"
+    CATEGORY = "Mockba"
+    DESCRIPTION = "Loads text from a file or uses the entered value."
+
+    def mbTextOrFile(self, input, base_name, action):
+        prefix = "ComfyUI\\input\\"
+        if not os.path.exists(prefix):
+            os.makedirs(prefix)
+        filename = base_name + ".txt"
+        if not os.path.exists(prefix + filename):
+            return (input,)
+        with open(prefix + filename, "r") as f:
+            file_text = f.read()
+        if action == "append":
+            file_text = file_text + input
+        elif action == "prepend":
+            file_text = input + file_text
+        elif action == "replace":
+            file_text = input
+        return (file_text,)
+
+
+# Shows debug information about the input object.
 class mbDebug:
     def __init__(self):
         pass
@@ -473,11 +484,11 @@ class mbDebug:
         }
 
     RETURN_TYPES = ()
-    OUTPUT_NODE = True
-
+    RETURN_NAMES = ()
     FUNCTION = "debug"
-
     CATEGORY = "Mockba"
+    DESCRIPTION = "Shows debug information about the input object."
+    OUTPUT_NODE = True
 
     def debug(self, input):
     
@@ -490,9 +501,7 @@ class mbDebug:
         return ()
 
 
-"""
-Creates an empty latent image using the cpu or gpu.
-"""
+# Creates an empty latent image using the cpu or gpu.
 class mbEmptyLatentImage:
     def __init__(self, device="cpu"):
         self.device = device
@@ -558,11 +567,7 @@ class mbEmptyLatentImage:
         return ({"samples": latent,},)
 
 
-"""
-creates random noise given a latent image and a seed.
-optional arg skip can be used to skip and discard x number of noise generations for a given seed.
-uses cpu or gpu depending on the device of the latent image.
-"""
+# creates random noise given a latent image and a seed.
 def my_prepare_noise(latent_image, seed, noise_inds=None):
     generator = torch.Generator(device=latent_image.device)
     generator.manual_seed(seed)
@@ -593,9 +598,7 @@ def my_prepare_noise(latent_image, seed, noise_inds=None):
     return (noises,)
 
 
-"""
-Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
-"""
+# Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
 def my_common_ksampler(
     model,
     seed,
@@ -669,9 +672,7 @@ def my_common_ksampler(
     return (out,)
 
 
-"""
-Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
-"""
+# Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
 class mbKSampler:
     @classmethod
     def INPUT_TYPES(s):
@@ -726,9 +727,7 @@ class mbKSampler:
         ))
 
 
-"""
-Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
-"""
+# Runs a model with a given latent image using cpu or gpu and returns the resulting latent image.
 class mbKSamplerAdvanced:
     @classmethod
     def INPUT_TYPES(s):
@@ -799,9 +798,7 @@ class mbKSamplerAdvanced:
             force_full_denoise=force_full_denoise
         ))
 
-"""
-Generates a hash given a seed and a base string.
-"""
+# Generates a hash given a seed and a base string.
 class mbHashGenerator:
     def __init__(self):
         pass
@@ -841,8 +838,8 @@ class mbHashGenerator:
         return(base_string+'-'+pw,)
 
 
+# Maps node class names to their corresponding class.
 NODE_CLASS_MAPPINGS = {
-    "mb Selector": mbSelector,
     "mb Image Flip": mbImageFlip,
     "mb Image Rotate": mbImageRot,
     "mb Image Subtract": mbImageSubtract,
@@ -852,7 +849,9 @@ NODE_CLASS_MAPPINGS = {
     "mb File to Image": mbFileToImage,
     "mb Text to File": mbTextToFile,
     "mb File to Text": mbFileToText,
+    "mb Text or File": mbTextOrFile,
     "mb Debug": mbDebug,
+    "mb Selector": mbSelector,
     "mb Execute": mbExecute,
     "mb Empty Latent Image": mbEmptyLatentImage,
     "mb KSampler": mbKSampler,
@@ -860,18 +859,21 @@ NODE_CLASS_MAPPINGS = {
     "mb Hash Generator": mbHashGenerator,
 }
 
+
+# Maps node class names to their corresponding display names.
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "mb Selector": "Selector",
     "mb Image Flip": "Image Flip",
     "mb Image Rotate": "Image Rotate",
     "mb Image Subtract": "Image Subtract",
     "mb Image Dimensions": "Image Dimensions",
-    "mb Image Load": "Image Load",
+    "mb Image Load": "Image Load 🖖",
     "mb Image to File": "Image to File",
     "mb File to Image": "File to Image",
     "mb Text to File": "Text to File",
     "mb File to Text": "File to Text",
+    "mb Text or File": "Text or File",
     "mb Debug": "Debug",
+    "mb Selector": "Selector",
     "mb Execute": "Execute",
     "mb Empty Latent Image": "Empty Latent Image (gpu) 🖖",
     "mb KSampler": "KSampler (gpu) 🖖",
