@@ -45,7 +45,7 @@ class mbImageFlip:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("image",)
     FUNCTION = "flip_image"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/image"
     DESCRIPTION = "Flips an image horizontally or vertically."
 
     def flip_image(self, image, flip):
@@ -87,7 +87,7 @@ class mbImageRot:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("image",)
     FUNCTION = "rotate_image"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/image"
     DESCRIPTION = "Rotates an image by 90, 180 or 270 degrees ccw."
 
     def rotate_image(self, image, degrees):
@@ -131,7 +131,7 @@ class mbImageSubtract:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("image",)
     FUNCTION = "subtract"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/image"
     DESCRIPTION = "Subtracts two images. Used to measure the difference between two images."
 
     def subtract(self, a, b):
@@ -154,7 +154,7 @@ class mbImageDimensions:
     RETURN_TYPES = ("INT", "INT",)
     RETURN_NAMES = ("width", "height",)
     FUNCTION = "get_size"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/tools"
     DESCRIPTION = "Returns the width and height of an image."
 
     def get_size(self, image):
@@ -174,13 +174,10 @@ class mbImageLoad:
         input_dir = folder_paths.get_input_directory()
         exclude_folders = ["clipspace"]
         file_list = []
-
         for root, dirs, files in os.walk(input_dir):
-            # Exclude specific folders
             dirs[:] = [d for d in dirs if d not in exclude_folders]
-            
             for file in files:
-                if not file.endswith(".png") and not file.endswith(".jpg"):
+                if not file.endswith(".png"):
                     continue
                 file_list.append(os.path.relpath(os.path.join(root, file), start=input_dir))
 
@@ -191,7 +188,7 @@ class mbImageLoad:
     RETURN_TYPES = ("IMAGE", "MASK",)
     RETURN_NAMES = ("image", "mask",)
     FUNCTION = "load_image"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/image"
     DESCRIPTION = "Loads image with subfolders."
 
     def load_image(self, image):
@@ -241,7 +238,7 @@ class mbSelector:
     RETURN_TYPES = (AlwaysEqualProxy("*"),)
     RETURN_NAMES = ("?",)
     FUNCTION = "select"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/tools"
     DESCRIPTION = "Selects one of two objects based on the value of a slider."
 
     def select(self, a, b, select):
@@ -271,7 +268,7 @@ class mbExecute:
     RETURN_TYPES = (AlwaysEqualProxy("*"),)
     RETURN_NAMES = ("out",)
     FUNCTION = "execute"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/tools"
     DESCRIPTION = "Execute python code on input(s) and return the result."
 
     def execute(self, a, code, b=None):
@@ -298,7 +295,7 @@ class mbImageToFile:
     RETURN_TYPES = ("IMAGE", "INT",)
     RETURN_NAMES = ("image", "id",)
     FUNCTION = "mbImageSave"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/file"
     DESCRIPTION = "Saves an image to a file."
 
     def mbImageSave(self, image, base_name, id, use_id):
@@ -333,7 +330,7 @@ class mbFileToImage:
     RETURN_TYPES = ("IMAGE", "INT",)
     RETURN_NAMES = ("image", "id",)
     FUNCTION = "mbImageLoad"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/file"
     DESCRIPTION = "Loads an image from a file."
 
     def mbImageLoad(self, base_name, id, use_id):
@@ -369,7 +366,7 @@ class mbTextToFile:
     RETURN_TYPES = ("STRING", "INT",)
     RETURN_NAMES = ("text", "id",)
     FUNCTION = "mbTextSave"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/file"
     DESCRIPTION = "Saves text to a file."
 
     def mbTextSave(self, text, base_name, id, use_id):
@@ -404,7 +401,7 @@ class mbFileToText:
     RETURN_TYPES = ("STRING", "INT",)
     RETURN_NAMES = ("text", "id",)
     FUNCTION = "mbTextLoad"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/file"
     DESCRIPTION = "Loads text from a file."
 
     def mbTextLoad(self, default, base_name, id, use_id):
@@ -440,7 +437,7 @@ class mbTextOrFile:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("text",)
     FUNCTION = "mbTextOrFile"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/file"
     DESCRIPTION = "Loads text from a file or uses the entered value."
 
     def mbTextOrFile(self, input, base_name, action):
@@ -478,7 +475,7 @@ class mbDebug:
     RETURN_TYPES = ()
     RETURN_NAMES = ()
     FUNCTION = "debug"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/tools"
     DESCRIPTION = "Shows debug information about the input object."
     OUTPUT_NODE = True
 
@@ -793,7 +790,7 @@ class mbHashGenerator:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("hash",)
     FUNCTION = "mbHashGenerate"
-    CATEGORY = "Mockba"
+    CATEGORY = "Mockba/tools"
     DESCRIPTION = "Generates a hash given a seed and a base string."
 
     def mbHashGenerate(self, seed, base_string):
@@ -816,6 +813,52 @@ class mbHashGenerator:
         return(base_string+'-'+pw,)
 
 
+# Returns a multiline string text.
+class mbText:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(self):
+        return {
+            "required": {
+                "text": ("STRING", {"default": "", "multiline": True}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("text",)
+    FUNCTION = "mbText"
+    CATEGORY = "Mockba/tools"
+    DESCRIPTION = "Returns a multiline string text."
+
+    def mbText(self, text):
+        return (text,)
+
+
+# Returns a single line string text.
+class msString:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(self):
+        return {
+            "required": {
+                "text": ("STRING", {"default": ""}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("text",)
+    FUNCTION = "mbString"
+    CATEGORY = "Mockba/tools"
+    DESCRIPTION = "Returns a single line string text."
+
+    def mbString(self, text):
+        return (text,)
+
+
 # Maps node class names to their corresponding class.
 NODE_CLASS_MAPPINGS = {
     "mb Image Flip": mbImageFlip,
@@ -835,6 +878,8 @@ NODE_CLASS_MAPPINGS = {
     "mb KSampler": mbKSampler,
     "mb KSampler Advanced": mbKSamplerAdvanced,
     "mb Hash Generator": mbHashGenerator,
+    "mb Text": mbText,
+    "mb String": msString,
 }
 
 
@@ -857,4 +902,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "mb KSampler": "KSampler (gpu) 🖖",
     "mb KSampler Advanced": "KSampler Advanced (gpu) 🖖",
     "mb Hash Generator": "Hash Generator",
+    "mb Text": "Text",
+    "mb String": "String",
 }
